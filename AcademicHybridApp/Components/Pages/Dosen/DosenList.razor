@@ -1,0 +1,196 @@
+@page "/dosen"
+@inject IDosenService DosenService
+@inject ToastService ToastService
+@inject NavigationManager Navigation
+
+<div class="page-head">
+    <p class="eyebrow">Data akademik</p>
+    <h1 class="page-title">Dosen</h1>
+    <p class="page-subtitle">
+        Kelola data dosen, mulai dari NIDN, nama, email, hingga program studi.
+    </p>
+</div>
+
+@if (_isLoading)
+{
+    <section class="preview-section" aria-label="Memuat data dosen">
+        <LoadingState Count="2" />
+    </section>
+}
+else if (_errorMessage is not null)
+{
+    <section class="preview-section">
+        <ErrorState Title="Data dosen gagal dimuat"
+                    Message="@_errorMessage"
+                    OnRetry="LoadAsync" />
+    </section>
+}
+else if (_dosen.Count == 0)
+{
+    <section class="preview-section">
+        <EmptyState Title="Belum ada data dosen"
+                    Message="Mulai dengan menambahkan dosen pertama ke sistem akademik.">
+            <a class="btn btn-primary btn--sm" href="/dosen/tambah">Tambah Dosen</a>
+        </EmptyState>
+    </section>
+}
+else
+{
+    <section class="preview-section dosen-list" aria-label="Daftar dosen">
+        @foreach (var dosen in _dosen)
+        {
+            <article class="card dosen-card">
+                <div class="card__header">
+                    <InitialsAvatar Name="@dosen.NamaDosen" Size="lg" />
+                    <div class="card__heading">
+                        <h2 class="card__title">@dosen.NamaDosen</h2>
+                        <p class="card__meta">NIDN @dosen.Nidn</p>
+                    </div>
+                </div>
+
+                <p class="dosen-card__email">@dosen.Email</p>
+
+                <div class="card__footer">
+                    <span class="badge badge--teal">@dosen.Prodi</span>
+                    <div class="card__actions">
+                        <button class="btn btn-ghost btn--sm" type="button" @onclick="() => NavigateToEdit(dosen.DosenId)">
+                            Edit
+                        </button>
+                        <button class="btn btn-danger btn--sm" type="button" @onclick="() => OpenDeleteDialog(dosen)">
+                            Hapus
+                        </button>
+                    </div>
+                </div>
+            </article>
+        }
+    </section>
+
+    <button class="fab" type="button" aria-label="Tambah Dosen" @onclick="NavigateToAdd">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+            <path d="M12 5v14M5 12h14" />
+        </svg>
+    </button>
+}
+
+<ConfirmDialog Visible="_confirmVisible"
+               Title="Hapus dosen?"
+               Message="@DeleteMessage"
+               IsProcessing="_isDeleting"
+               OnConfirm="ConfirmDeleteAsync"
+               OnCancel="CancelDelete" />
+
+@code {
+    private List<DosenModel> _dosen = new();
+    private bool _isLoading = true;
+    private string? _errorMessage;
+    private DosenModel? _dosenToDelete;
+    private bool _confirmVisible;
+    private bool _isDeleting;
+
+    private string DeleteMessage => _dosenToDelete is null
+        ? "Data dosen akan dihapus permanen dan tidak dapat dikembalikan."
+        : $"Data dosen {_dosenToDelete.NamaDosen} akan dihapus permanen dan tidak dapat dikembalikan.";
+
+    protected override Task OnInitializedAsync()
+    {
+        return LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+        StateHasChanged();
+
+        await FetchAsync();
+
+        _isLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task RefreshAsync()
+    {
+        await FetchAsync();
+        StateHasChanged();
+    }
+
+    private async Task FetchAsync()
+    {
+        try
+        {
+            var result = await DosenService.GetAllAsync();
+
+            if (result.Success)
+            {
+                _dosen = result.Data ?? new List<DosenModel>();
+                _errorMessage = null;
+            }
+            else
+            {
+                _errorMessage = result.Message;
+            }
+        }
+        catch (Exception)
+        {
+            _errorMessage = "Tidak dapat terhubung ke server. Pastikan API sudah berjalan.";
+        }
+    }
+
+    private void NavigateToAdd()
+    {
+        Navigation.NavigateTo("/dosen/tambah");
+    }
+
+    private void NavigateToEdit(int id)
+    {
+        Navigation.NavigateTo($"/dosen/edit/{id}");
+    }
+
+    private void OpenDeleteDialog(DosenModel dosen)
+    {
+        _dosenToDelete = dosen;
+        _isDeleting = false;
+        _confirmVisible = true;
+    }
+
+    private void CancelDelete()
+    {
+        if (_isDeleting)
+        {
+            return;
+        }
+
+        _confirmVisible = false;
+        _dosenToDelete = null;
+    }
+
+    private async Task ConfirmDeleteAsync()
+    {
+        if (_dosenToDelete is null || _isDeleting)
+        {
+            return;
+        }
+
+        var dosen = _dosenToDelete;
+        _isDeleting = true;
+        StateHasChanged();
+
+        var result = await DosenService.DeleteAsync(dosen.DosenId);
+
+        _isDeleting = false;
+        _confirmVisible = false;
+        _dosenToDelete = null;
+
+        if (result.Success)
+        {
+            ToastService.ShowSuccess("Dosen berhasil dihapus", result.Message);
+            StateHasChanged();
+            await RefreshAsync();
+        }
+        else
+        {
+            ToastService.ShowError("Gagal menghapus dosen", result.Message);
+            StateHasChanged();
+        }
+    }
+}

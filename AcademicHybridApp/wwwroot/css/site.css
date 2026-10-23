@@ -215,6 +215,46 @@ svg {
     text-underline-offset: 3px;
 }
 
+.page-head .text-link {
+    align-self: flex-start;
+}
+
+.dosen-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.dosen-card__email {
+    margin-top: 14px;
+    color: var(--muted);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.dosen-card .card__footer {
+    flex-wrap: wrap;
+}
+
+.card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.form-actions .btn {
+    flex: 1;
+    min-height: 48px;
+}
+
 .dashboard-stats {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
