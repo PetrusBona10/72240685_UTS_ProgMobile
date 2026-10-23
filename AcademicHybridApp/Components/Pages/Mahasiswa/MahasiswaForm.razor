@@ -1,9 +1,8 @@
 @page "/mahasiswa/tambah"
 @page "/mahasiswa/edit/{Id:int}"
+@inherits EntityFormPageBase<MahasiswaFormModel>
 @inject IMahasiswaService MahasiswaService
 @inject IDosenService DosenService
-@inject ToastService ToastService
-@inject NavigationManager Navigation
 
 <div class="page-head">
     <a class="text-link" href="/mahasiswa">← Kembali ke daftar</a>
@@ -12,17 +11,17 @@
     <p class="page-subtitle">@PageSubtitle</p>
 </div>
 
-@if (_isLoading)
+@if (IsLoading)
 {
     <section class="preview-section" aria-label="Memuat data mahasiswa">
         <LoadingState Count="1" />
     </section>
 }
-else if (_loadErrorMessage is not null)
+else if (LoadErrorMessage is not null)
 {
     <section class="preview-section">
         <ErrorState Title="Data mahasiswa tidak dapat dimuat"
-                    Message="@_loadErrorMessage"
+                    Message="@LoadErrorMessage"
                     OnRetry="LoadAsync" />
         <a class="btn btn-ghost btn--block" href="/mahasiswa">Kembali ke daftar</a>
     </section>
@@ -38,7 +37,7 @@ else if (_dosen.Count == 0)
 }
 else
 {
-    <EditForm Model="_model" OnValidSubmit="SaveAsync">
+    <EditForm Model="FormModel" OnValidSubmit="SaveAsync">
         <DataAnnotationsValidator />
 
         <div class="preview-section">
@@ -47,18 +46,18 @@ else
                     <label class="form-label" for="nim">NIM</label>
                     <InputText class="form-control"
                                id="nim"
-                               @bind-Value="_model.Nim"
+                               @bind-Value="FormModel.Nim"
                                placeholder="cth. 22101123" />
-                    <ValidationMessage For="() => _model.Nim" />
+                    <ValidationMessage For="() => FormModel.Nim" />
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="nama">Nama mahasiswa</label>
                     <InputText class="form-control"
                                id="nama"
-                               @bind-Value="_model.NamaMahasiswa"
+                               @bind-Value="FormModel.NamaMahasiswa"
                                placeholder="cth. Nadia Putri Lestari" />
-                    <ValidationMessage For="() => _model.NamaMahasiswa" />
+                    <ValidationMessage For="() => FormModel.NamaMahasiswa" />
                 </div>
 
                 <div class="form-group">
@@ -66,43 +65,43 @@ else
                     <InputText class="form-control"
                                id="email"
                                type="email"
-                               @bind-Value="_model.Email"
+                               @bind-Value="FormModel.Email"
                                placeholder="nama@kampus.ac.id" />
-                    <ValidationMessage For="() => _model.Email" />
+                    <ValidationMessage For="() => FormModel.Email" />
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="angkatan">Angkatan</label>
                     <InputNumber class="form-control"
                                  id="angkatan"
-                                 @bind-Value="_model.Angkatan"
+                                 @bind-Value="FormModel.Angkatan"
                                  min="2020"
                                  max="2026"
                                  placeholder="cth. 2024" />
-                    <ValidationMessage For="() => _model.Angkatan" />
+                    <ValidationMessage For="() => FormModel.Angkatan" />
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="dosen">Dosen wali</label>
-                    <InputSelect class="form-control" id="dosen" @bind-Value="_model.DosenId">
+                    <InputSelect class="form-control" id="dosen" @bind-Value="FormModel.DosenId">
                         <option value="0">Pilih dosen wali</option>
                         @foreach (var dosen in _dosen)
                         {
                             <option value="@dosen.DosenId">@dosen.NamaDosen · @dosen.Prodi</option>
                         }
                     </InputSelect>
-                    <ValidationMessage For="() => _model.DosenId" />
+                    <ValidationMessage For="() => FormModel.DosenId" />
                 </div>
             </div>
 
             <div class="form-actions">
                 <a class="btn btn-ghost" href="/mahasiswa">Batal</a>
-                <button class="btn btn-primary" type="submit" disabled="@_isSaving">
-                    @if (_isSaving)
+                <button class="btn btn-primary" type="submit" disabled="@IsSaving">
+                    @if (IsSaving)
                     {
                         <span class="btn__spinner" aria-hidden="true"></span>
                     }
-                    @(_isSaving ? "Menyimpan..." : "Simpan")
+                    @(IsSaving ? "Menyimpan..." : "Simpan")
                 </button>
             </div>
         </div>
@@ -113,11 +112,7 @@ else
     [Parameter]
     public int? Id { get; set; }
 
-    private readonly MahasiswaFormModel _model = new();
-    private List<DosenModel> _dosen = new();
-    private bool _isLoading = true;
-    private bool _isSaving;
-    private string? _loadErrorMessage;
+    private readonly List<DosenModel> _dosen = new();
 
     private bool IsEditMode => Id.HasValue;
 
@@ -127,118 +122,85 @@ else
         ? "Perbarui informasi mahasiswa dan dosen wali, lalu simpan perubahan."
         : "Lengkapi informasi mahasiswa baru untuk ditambahkan ke sistem akademik.";
 
+    protected override string ListPath => "/mahasiswa";
+
+    protected override string SaveSuccessTitle => IsEditMode
+        ? "Mahasiswa berhasil diperbarui"
+        : "Mahasiswa berhasil ditambahkan";
+
+    protected override string SaveErrorTitle => IsEditMode
+        ? "Gagal memperbarui mahasiswa"
+        : "Gagal menambahkan mahasiswa";
+
     protected override async Task OnInitializedAsync()
     {
         if (!IsEditMode)
         {
-            _model.Angkatan = Math.Clamp(DateTime.Today.Year, 2020, 2026);
+            FormModel.Angkatan = Math.Clamp(DateTime.Today.Year, 2020, 2026);
         }
 
-        await LoadAsync();
+        await base.OnInitializedAsync();
     }
 
-    private async Task LoadAsync()
+    protected override async Task LoadFormAsync()
     {
-        _isLoading = true;
-        _loadErrorMessage = null;
-        StateHasChanged();
+        var dosenTask = DosenService.GetAllAsync();
+        var mahasiswaTask = IsEditMode
+            ? MahasiswaService.GetByIdAsync(Id!.Value)
+            : null;
 
-        try
+        if (mahasiswaTask is null)
         {
-            var dosenTask = DosenService.GetAllAsync();
-            var mahasiswaTask = IsEditMode
-                ? MahasiswaService.GetByIdAsync(Id!.Value)
-                : null;
-
-            if (mahasiswaTask is null)
-            {
-                await dosenTask;
-            }
-            else
-            {
-                await Task.WhenAll(dosenTask, mahasiswaTask);
-            }
-
-            var dosenResult = await dosenTask;
-
-            if (!dosenResult.Success)
-            {
-                _loadErrorMessage = dosenResult.Message;
-                return;
-            }
-
-            _dosen = (dosenResult.Data ?? new List<DosenModel>())
-                .OrderBy(dosen => dosen.NamaDosen)
-                .ToList();
-
-            if (mahasiswaTask is null)
-            {
-                return;
-            }
-
-            var mahasiswaResult = await mahasiswaTask;
-
-            if (!mahasiswaResult.Success || mahasiswaResult.Data is null)
-            {
-                _loadErrorMessage = mahasiswaResult.Message;
-                return;
-            }
-
-            _model.Nim = mahasiswaResult.Data.Nim;
-            _model.NamaMahasiswa = mahasiswaResult.Data.NamaMahasiswa;
-            _model.Email = mahasiswaResult.Data.Email;
-            _model.Angkatan = mahasiswaResult.Data.Angkatan;
-            _model.DosenId = mahasiswaResult.Data.DosenId;
-        }
-        catch (Exception)
-        {
-            _loadErrorMessage = "Tidak dapat terhubung ke server. Pastikan API sudah berjalan.";
-        }
-        finally
-        {
-            _isLoading = false;
-            StateHasChanged();
-        }
-    }
-
-    private async Task SaveAsync()
-    {
-        if (_isSaving)
-        {
-            return;
-        }
-
-        _isSaving = true;
-        StateHasChanged();
-
-        bool success;
-        string message;
-
-        if (IsEditMode)
-        {
-            var updateResult = await MahasiswaService.UpdateAsync(Id!.Value, _model);
-            success = updateResult.Success;
-            message = updateResult.Message;
+            await dosenTask;
         }
         else
         {
-            var createResult = await MahasiswaService.CreateAsync(_model);
-            success = createResult.Success;
-            message = createResult.Message;
+            await Task.WhenAll(dosenTask, mahasiswaTask);
         }
 
-        if (success)
+        var dosenResult = await dosenTask;
+
+        if (!dosenResult.Success)
         {
-            var title = IsEditMode ? "Mahasiswa berhasil diperbarui" : "Mahasiswa berhasil ditambahkan";
-            ToastService.ShowSuccess(title, message);
-            Navigation.NavigateTo("/mahasiswa");
+            LoadErrorMessage = dosenResult.Message;
             return;
         }
 
-        var errorTitle = IsEditMode ? "Gagal memperbarui mahasiswa" : "Gagal menambahkan mahasiswa";
-        ToastService.ShowError(errorTitle, message);
+        _dosen.Clear();
+        _dosen.AddRange((dosenResult.Data ?? new List<DosenModel>())
+            .OrderBy(dosen => dosen.NamaDosen));
 
-        _isSaving = false;
-        StateHasChanged();
+        if (mahasiswaTask is null)
+        {
+            return;
+        }
+
+        var mahasiswaResult = await mahasiswaTask;
+
+        if (!mahasiswaResult.Success || mahasiswaResult.Data is null)
+        {
+            LoadErrorMessage = mahasiswaResult.Message;
+            return;
+        }
+
+        FormModel.Nim = mahasiswaResult.Data.Nim;
+        FormModel.NamaMahasiswa = mahasiswaResult.Data.NamaMahasiswa;
+        FormModel.Email = mahasiswaResult.Data.Email;
+        FormModel.Angkatan = mahasiswaResult.Data.Angkatan;
+        FormModel.DosenId = mahasiswaResult.Data.DosenId;
+    }
+
+    protected override async Task<ServiceResult> SaveModelAsync()
+    {
+        if (IsEditMode)
+        {
+            return await MahasiswaService.UpdateAsync(Id!.Value, FormModel);
+        }
+
+        var result = await MahasiswaService.CreateAsync(FormModel);
+
+        return result.Success
+            ? ServiceResult.Ok(result.Message)
+            : ServiceResult.Fail(result.Message);
     }
 }

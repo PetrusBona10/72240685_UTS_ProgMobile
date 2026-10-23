@@ -1,7 +1,6 @@
 @page "/dosen"
+@inherits EntityListPageBase<DosenModel>
 @inject IDosenService DosenService
-@inject ToastService ToastService
-@inject NavigationManager Navigation
 
 <div class="page-head">
     <p class="eyebrow">Data akademik</p>
@@ -11,21 +10,21 @@
     </p>
 </div>
 
-@if (_isLoading)
+@if (IsLoading)
 {
     <section class="preview-section" aria-label="Memuat data dosen">
         <LoadingState Count="2" />
     </section>
 }
-else if (_errorMessage is not null)
+else if (ErrorMessage is not null)
 {
     <section class="preview-section">
         <ErrorState Title="Data dosen gagal dimuat"
-                    Message="@_errorMessage"
+                    Message="@ErrorMessage"
                     OnRetry="LoadAsync" />
     </section>
 }
-else if (_dosen.Count == 0)
+else if (Items.Count == 0)
 {
     <section class="preview-section">
         <EmptyState Title="Belum ada data dosen"
@@ -37,7 +36,7 @@ else if (_dosen.Count == 0)
 else
 {
     <section class="preview-section dosen-list" aria-label="Daftar dosen">
-        @foreach (var dosen in _dosen)
+        @foreach (var dosen in Items)
         {
             <article class="card dosen-card">
                 <div class="card__header">
@@ -53,7 +52,7 @@ else
                 <div class="card__footer">
                     <span class="badge badge--teal">@dosen.Prodi</span>
                     <div class="card__actions">
-                        <button class="btn btn-ghost btn--sm" type="button" @onclick="() => NavigateToEdit(dosen.DosenId)">
+                        <button class="btn btn-ghost btn--sm" type="button" @onclick="() => NavigateToEdit(dosen)">
                             Edit
                         </button>
                         <button class="btn btn-danger btn--sm" type="button" @onclick="() => OpenDeleteDialog(dosen)">
@@ -72,125 +71,35 @@ else
     </button>
 }
 
-<ConfirmDialog Visible="_confirmVisible"
+<ConfirmDialog Visible="ConfirmVisible"
                Title="Hapus dosen?"
                Message="@DeleteMessage"
-               IsProcessing="_isDeleting"
+               IsProcessing="IsDeleting"
                OnConfirm="ConfirmDeleteAsync"
                OnCancel="CancelDelete" />
 
 @code {
-    private List<DosenModel> _dosen = new();
-    private bool _isLoading = true;
-    private string? _errorMessage;
-    private DosenModel? _dosenToDelete;
-    private bool _confirmVisible;
-    private bool _isDeleting;
+    protected override string EntityName => "Dosen";
 
-    private string DeleteMessage => _dosenToDelete is null
-        ? "Data dosen akan dihapus permanen dan tidak dapat dikembalikan."
-        : $"Data dosen {_dosenToDelete.NamaDosen} akan dihapus permanen dan tidak dapat dikembalikan.";
+    protected override string AddPath => "/dosen/tambah";
 
-    protected override Task OnInitializedAsync()
+    protected override Task<ServiceResult<List<DosenModel>>> LoadItemsAsync()
     {
-        return LoadAsync();
+        return DosenService.GetAllAsync();
     }
 
-    private async Task LoadAsync()
+    protected override Task<ServiceResult> DeleteItemAsync(DosenModel item)
     {
-        _isLoading = true;
-        _errorMessage = null;
-        StateHasChanged();
-
-        await FetchAsync();
-
-        _isLoading = false;
-        StateHasChanged();
+        return DosenService.DeleteAsync(item.DosenId);
     }
 
-    private async Task RefreshAsync()
+    protected override string GetItemName(DosenModel item)
     {
-        await FetchAsync();
-        StateHasChanged();
+        return item.NamaDosen;
     }
 
-    private async Task FetchAsync()
+    protected override string GetEditPath(DosenModel item)
     {
-        try
-        {
-            var result = await DosenService.GetAllAsync();
-
-            if (result.Success)
-            {
-                _dosen = result.Data ?? new List<DosenModel>();
-                _errorMessage = null;
-            }
-            else
-            {
-                _errorMessage = result.Message;
-            }
-        }
-        catch (Exception)
-        {
-            _errorMessage = "Tidak dapat terhubung ke server. Pastikan API sudah berjalan.";
-        }
-    }
-
-    private void NavigateToAdd()
-    {
-        Navigation.NavigateTo("/dosen/tambah");
-    }
-
-    private void NavigateToEdit(int id)
-    {
-        Navigation.NavigateTo($"/dosen/edit/{id}");
-    }
-
-    private void OpenDeleteDialog(DosenModel dosen)
-    {
-        _dosenToDelete = dosen;
-        _isDeleting = false;
-        _confirmVisible = true;
-    }
-
-    private void CancelDelete()
-    {
-        if (_isDeleting)
-        {
-            return;
-        }
-
-        _confirmVisible = false;
-        _dosenToDelete = null;
-    }
-
-    private async Task ConfirmDeleteAsync()
-    {
-        if (_dosenToDelete is null || _isDeleting)
-        {
-            return;
-        }
-
-        var dosen = _dosenToDelete;
-        _isDeleting = true;
-        StateHasChanged();
-
-        var result = await DosenService.DeleteAsync(dosen.DosenId);
-
-        _isDeleting = false;
-        _confirmVisible = false;
-        _dosenToDelete = null;
-
-        if (result.Success)
-        {
-            ToastService.ShowSuccess("Dosen berhasil dihapus", result.Message);
-            StateHasChanged();
-            await RefreshAsync();
-        }
-        else
-        {
-            ToastService.ShowError("Gagal menghapus dosen", result.Message);
-            StateHasChanged();
-        }
+        return $"/dosen/edit/{item.DosenId}";
     }
 }

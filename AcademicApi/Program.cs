@@ -1,5 +1,6 @@
 using AcademicApi.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,12 +12,26 @@ builder.Services.AddControllers()
     {
         options.InvalidModelStateResponseFactory = context =>
         {
+            var bodyParameter = context.ActionDescriptor.Parameters
+                .FirstOrDefault(parameter => parameter.BindingInfo?.BindingSource == BindingSource.Body);
+
+            var hasBindingError = context.ModelState.Any(entry =>
+                entry.Key.StartsWith("$", StringComparison.Ordinal)
+                || (bodyParameter is not null && entry.Key == bodyParameter.Name)
+                || entry.Value?.Errors.Any(error => error.Exception is not null) == true);
+
+            if (hasBindingError)
+            {
+                return new BadRequestObjectResult(new { message = "Data yang dikirim tidak valid." });
+            }
+
             var messages = context.ModelState
                 .Where(entry => entry.Value?.Errors.Count > 0)
-                .SelectMany(entry => entry.Value!.Errors)
-                .Select(error => string.IsNullOrWhiteSpace(error.ErrorMessage)
-                    ? "Data yang dikirim tidak valid."
-                    : error.ErrorMessage)
+                .Select(entry => entry.Value!.Errors
+                    .Select(error => string.IsNullOrWhiteSpace(error.ErrorMessage)
+                        ? "Data yang dikirim tidak valid."
+                        : error.ErrorMessage)
+                    .First())
                 .Distinct()
                 .ToList();
 
@@ -47,6 +62,19 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        context.Response.ContentType = "application/json";
+        await context.Response.WriteAsJsonAsync(new
+        {
+            message = "Terjadi kesalahan pada server. Silakan coba lagi."
+        });
+    });
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

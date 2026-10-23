@@ -1,7 +1,6 @@
 @page "/mahasiswa"
+@inherits EntityListPageBase<MahasiswaModel>
 @inject IMahasiswaService MahasiswaService
-@inject ToastService ToastService
-@inject NavigationManager Navigation
 
 <div class="page-head">
     <p class="eyebrow">Data akademik</p>
@@ -11,21 +10,21 @@
     </p>
 </div>
 
-@if (_isLoading)
+@if (IsLoading)
 {
     <section class="preview-section" aria-label="Memuat data mahasiswa">
         <LoadingState Count="2" />
     </section>
 }
-else if (_errorMessage is not null)
+else if (ErrorMessage is not null)
 {
     <section class="preview-section">
         <ErrorState Title="Data mahasiswa gagal dimuat"
-                    Message="@_errorMessage"
+                    Message="@ErrorMessage"
                     OnRetry="LoadAsync" />
     </section>
 }
-else if (_mahasiswa.Count == 0)
+else if (Items.Count == 0)
 {
     <section class="preview-section">
         <EmptyState Title="Belum ada data mahasiswa"
@@ -37,7 +36,7 @@ else if (_mahasiswa.Count == 0)
 else
 {
     <section class="preview-section mahasiswa-list" aria-label="Daftar mahasiswa">
-        @foreach (var mahasiswa in _mahasiswa)
+        @foreach (var mahasiswa in Items)
         {
             <article class="card mahasiswa-card">
                 <div class="card__header">
@@ -56,7 +55,7 @@ else
 
                 <div class="card__footer">
                     <div class="card__actions">
-                        <button class="btn btn-ghost btn--sm" type="button" @onclick="() => NavigateToEdit(mahasiswa.MahasiswaId)">
+                        <button class="btn btn-ghost btn--sm" type="button" @onclick="() => NavigateToEdit(mahasiswa)">
                             Edit
                         </button>
                         <button class="btn btn-danger btn--sm" type="button" @onclick="() => OpenDeleteDialog(mahasiswa)">
@@ -75,125 +74,35 @@ else
     </button>
 }
 
-<ConfirmDialog Visible="_confirmVisible"
+<ConfirmDialog Visible="ConfirmVisible"
                Title="Hapus mahasiswa?"
                Message="@DeleteMessage"
-               IsProcessing="_isDeleting"
+               IsProcessing="IsDeleting"
                OnConfirm="ConfirmDeleteAsync"
                OnCancel="CancelDelete" />
 
 @code {
-    private List<MahasiswaModel> _mahasiswa = new();
-    private bool _isLoading = true;
-    private string? _errorMessage;
-    private MahasiswaModel? _mahasiswaToDelete;
-    private bool _confirmVisible;
-    private bool _isDeleting;
+    protected override string EntityName => "Mahasiswa";
 
-    private string DeleteMessage => _mahasiswaToDelete is null
-        ? "Data mahasiswa akan dihapus permanen dan tidak dapat dikembalikan."
-        : $"Data mahasiswa {_mahasiswaToDelete.NamaMahasiswa} akan dihapus permanen dan tidak dapat dikembalikan.";
+    protected override string AddPath => "/mahasiswa/tambah";
 
-    protected override Task OnInitializedAsync()
+    protected override Task<ServiceResult<List<MahasiswaModel>>> LoadItemsAsync()
     {
-        return LoadAsync();
+        return MahasiswaService.GetAllAsync();
     }
 
-    private async Task LoadAsync()
+    protected override Task<ServiceResult> DeleteItemAsync(MahasiswaModel item)
     {
-        _isLoading = true;
-        _errorMessage = null;
-        StateHasChanged();
-
-        await FetchAsync();
-
-        _isLoading = false;
-        StateHasChanged();
+        return MahasiswaService.DeleteAsync(item.MahasiswaId);
     }
 
-    private async Task RefreshAsync()
+    protected override string GetItemName(MahasiswaModel item)
     {
-        await FetchAsync();
-        StateHasChanged();
+        return item.NamaMahasiswa;
     }
 
-    private async Task FetchAsync()
+    protected override string GetEditPath(MahasiswaModel item)
     {
-        try
-        {
-            var result = await MahasiswaService.GetAllAsync();
-
-            if (result.Success)
-            {
-                _mahasiswa = result.Data ?? new List<MahasiswaModel>();
-                _errorMessage = null;
-            }
-            else
-            {
-                _errorMessage = result.Message;
-            }
-        }
-        catch (Exception)
-        {
-            _errorMessage = "Tidak dapat terhubung ke server. Pastikan API sudah berjalan.";
-        }
-    }
-
-    private void NavigateToAdd()
-    {
-        Navigation.NavigateTo("/mahasiswa/tambah");
-    }
-
-    private void NavigateToEdit(int id)
-    {
-        Navigation.NavigateTo($"/mahasiswa/edit/{id}");
-    }
-
-    private void OpenDeleteDialog(MahasiswaModel mahasiswa)
-    {
-        _mahasiswaToDelete = mahasiswa;
-        _isDeleting = false;
-        _confirmVisible = true;
-    }
-
-    private void CancelDelete()
-    {
-        if (_isDeleting)
-        {
-            return;
-        }
-
-        _confirmVisible = false;
-        _mahasiswaToDelete = null;
-    }
-
-    private async Task ConfirmDeleteAsync()
-    {
-        if (_mahasiswaToDelete is null || _isDeleting)
-        {
-            return;
-        }
-
-        var mahasiswa = _mahasiswaToDelete;
-        _isDeleting = true;
-        StateHasChanged();
-
-        var result = await MahasiswaService.DeleteAsync(mahasiswa.MahasiswaId);
-
-        _isDeleting = false;
-        _confirmVisible = false;
-        _mahasiswaToDelete = null;
-
-        if (result.Success)
-        {
-            ToastService.ShowSuccess("Mahasiswa berhasil dihapus", result.Message);
-            StateHasChanged();
-            await RefreshAsync();
-        }
-        else
-        {
-            ToastService.ShowError("Gagal menghapus mahasiswa", result.Message);
-            StateHasChanged();
-        }
+        return $"/mahasiswa/edit/{item.MahasiswaId}";
     }
 }

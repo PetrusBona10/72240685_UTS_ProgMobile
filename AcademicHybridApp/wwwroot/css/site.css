@@ -15,11 +15,8 @@
     --success-soft: #EAF0DC;
     --surface-muted: #F3EDE3;
     --radius-lg: 20px;
-    --radius-md: 16px;
-    --radius-sm: 12px;
     --radius-pill: 999px;
     --shadow-soft: 0 1px 2px rgba(31, 42, 68, 0.04), 0 10px 30px rgba(31, 42, 68, 0.07);
-    --shadow-lifted: 0 2px 4px rgba(31, 42, 68, 0.05), 0 18px 40px rgba(31, 42, 68, 0.1);
     --shadow-float: 0 12px 32px rgba(31, 42, 68, 0.16), 0 2px 8px rgba(31, 42, 68, 0.08);
     --content-max: 720px;
     --nav-height: 74px;
@@ -438,10 +435,6 @@ svg {
     box-shadow: var(--shadow-soft);
 }
 
-.card--tinted {
-    background: linear-gradient(160deg, #FFFDF9 0%, var(--surface) 62%);
-}
-
 .card__header {
     display: flex;
     align-items: flex-start;
@@ -466,13 +459,6 @@ svg {
     font-size: 0.8125rem;
 }
 
-.card__body-text {
-    margin-top: 14px;
-    color: var(--muted);
-    font-size: 0.875rem;
-    line-height: 1.65;
-}
-
 .card__footer {
     display: flex;
     align-items: center;
@@ -485,12 +471,6 @@ svg {
 
 .card__footer .eyebrow {
     color: var(--muted);
-}
-
-.divider {
-    margin: 18px 0;
-    border: 0;
-    border-top: 1px solid var(--line);
 }
 
 .btn {
@@ -583,17 +563,6 @@ svg {
     box-shadow: 0 0 0 3px var(--paper), 0 0 0 6px rgba(15, 118, 110, 0.4);
 }
 
-.button-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 10px;
-}
-
-.button-row--spaced {
-    margin-top: 16px;
-}
-
 .btn__spinner {
     width: 16px;
     height: 16px;
@@ -670,31 +639,6 @@ textarea.form-control {
     resize: vertical;
 }
 
-.form-hint {
-    color: var(--muted);
-    font-size: 0.75rem;
-    line-height: 1.5;
-}
-
-.form-hint--spaced {
-    margin-top: 12px;
-}
-
-.form-error {
-    color: var(--danger);
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-.form-group--error .form-control {
-    border-color: var(--danger);
-    background: #FFF9F6;
-}
-
-.form-group--error .form-control:focus {
-    box-shadow: 0 0 0 4px rgba(194, 65, 12, 0.12);
-}
-
 .validation-message {
     color: var(--danger);
     font-size: 0.75rem;
@@ -731,27 +675,6 @@ textarea.form-control {
     color: var(--teal-deep);
 }
 
-.badge--success {
-    background: var(--success-soft);
-    color: #3F6212;
-}
-
-.badge--warning {
-    background: var(--amber-soft);
-    color: #8A5A12;
-}
-
-.badge--danger {
-    background: var(--danger-soft);
-    color: #9A3412;
-}
-
-.badge-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
 .avatar {
     display: inline-grid;
     flex: none;
@@ -765,12 +688,6 @@ textarea.form-control {
     font-weight: 800;
     letter-spacing: 0.03em;
     box-shadow: 0 3px 10px rgba(31, 42, 68, 0.15);
-}
-
-.avatar--sm {
-    width: 34px;
-    height: 34px;
-    font-size: 0.6875rem;
 }
 
 .avatar--lg {
@@ -801,22 +718,6 @@ textarea.form-control {
 
 .avatar--6 {
     background: linear-gradient(145deg, #4A7A96, #35627D);
-}
-
-.avatar-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 10px;
-}
-
-.avatar-stack {
-    display: flex;
-    align-items: center;
-}
-
-.avatar-stack .avatar + .avatar {
-    margin-left: -10px;
 }
 
 .skeleton {
@@ -872,10 +773,6 @@ textarea.form-control {
 
 .skeleton-line--md {
     width: 54%;
-}
-
-.skeleton-line--sm {
-    width: 34%;
 }
 
 .skeleton-block {
@@ -985,12 +882,6 @@ textarea.form-control {
     margin-top: 8px;
 }
 
-.toast-stack {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
 .toast-region {
     position: fixed;
     bottom: calc(var(--nav-height) + env(safe-area-inset-bottom) + 16px);
@@ -1068,15 +959,6 @@ textarea.form-control {
     color: var(--success);
 }
 
-.toast--warning {
-    border-left-color: var(--amber);
-}
-
-.toast--warning .toast__icon {
-    background: var(--amber-soft);
-    color: #A16207;
-}
-
 .toast--danger {
     border-left-color: var(--danger);
 }
@@ -1116,31 +998,6 @@ textarea.form-control {
 
 .fab:active {
     transform: scale(0.96);
-}
-
-.fab-preview {
-    position: relative;
-    display: flex;
-    align-items: flex-start;
-    min-height: 150px;
-    padding: 18px 20px;
-    overflow: hidden;
-    border: 1px dashed #DCCFBB;
-    border-radius: var(--radius-lg);
-    background: linear-gradient(160deg, #FFFDF9, #F7F1E7);
-}
-
-.fab-preview .fab {
-    position: absolute;
-    right: 20px;
-    bottom: 20px;
-}
-
-.fab-preview__label {
-    max-width: 38ch;
-    color: var(--muted);
-    font-size: 0.8125rem;
-    line-height: 1.6;
 }
 
 .modal-backdrop {
@@ -1332,10 +1189,6 @@ textarea.form-control {
 #blazor-error-ui .dismiss {
     float: right;
     cursor: pointer;
-}
-
-.status-bar-safe-area {
-    display: none;
 }
 
 @media (min-width: 600px) {

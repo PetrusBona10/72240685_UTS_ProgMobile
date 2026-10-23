@@ -28,12 +28,7 @@
         }
     }
 
-    private string SizeClass => Size switch
-    {
-        "sm" => "avatar--sm",
-        "lg" => "avatar--lg",
-        _ => string.Empty
-    };
+    private string SizeClass => Size == "lg" ? "avatar--lg" : string.Empty;
 
     private string ColorClass
     {
