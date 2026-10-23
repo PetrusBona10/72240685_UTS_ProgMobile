@@ -237,6 +237,41 @@ svg {
     flex-wrap: wrap;
 }
 
+.mahasiswa-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.mahasiswa-card__email {
+    margin-top: 14px;
+    color: var(--muted);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.mahasiswa-card__wali {
+    margin-top: 6px;
+    color: var(--muted);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.mahasiswa-card__wali strong {
+    color: var(--ink);
+    font-weight: 700;
+}
+
+.mahasiswa-card .card__header .badge {
+    flex: none;
+}
+
+.mahasiswa-card .card__footer {
+    justify-content: flex-end;
+}
+
 .card__actions {
     display: flex;
     flex-wrap: wrap;
