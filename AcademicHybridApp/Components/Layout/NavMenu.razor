@@ -1,17 +1,31 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">AcademicHybridApp</a>
+﻿<nav class="bottom-nav" aria-label="Navigasi utama">
+    <div class="bottom-nav__inner">
+        <NavLink class="bottom-nav__link" href="" Match="NavLinkMatch.All">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 10.5 12 4l8 6.5" />
+                <path d="M6 9.5V20h12V9.5" />
+                <path d="M10 20v-5.5h4V20" />
+            </svg>
+            <span class="bottom-nav__label">Beranda</span>
+        </NavLink>
+
+        <NavLink class="bottom-nav__link" href="dosen">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 3 2.5 7.5 12 12l9.5-4.5L12 3Z" />
+                <path d="M6.5 10v4.5c0 1.8 2.5 3.5 5.5 3.5s5.5-1.7 5.5-3.5V10" />
+                <path d="M21.5 7.5v5" />
+            </svg>
+            <span class="bottom-nav__label">Dosen</span>
+        </NavLink>
+
+        <NavLink class="bottom-nav__link" href="mahasiswa">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="9" cy="8" r="3.2" />
+                <path d="M3.5 20c0-3 2.5-5.2 5.5-5.2s5.5 2.2 5.5 5.2" />
+                <path d="M16 5.3a3.2 3.2 0 0 1 0 5.4" />
+                <path d="M17.5 14.9c2.1.7 3.5 2.5 3.5 5.1" />
+            </svg>
+            <span class="bottom-nav__label">Mahasiswa</span>
+        </NavLink>
     </div>
-</div>
-
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
-
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-    </nav>
-</div>
+</nav>

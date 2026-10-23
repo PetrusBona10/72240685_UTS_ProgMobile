@@ -1,0 +1,51 @@
+@namespace AcademicHybridApp.Components.Shared
+
+<span class="avatar @SizeClass @ColorClass" title="@Name" aria-label="@Name">@Initials</span>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Name { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Size { get; set; } = "md";
+
+    private string Initials
+    {
+        get
+        {
+            var words = Name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (words.Length == 0)
+            {
+                return "?";
+            }
+
+            if (words.Length == 1)
+            {
+                return words[0][..1].ToUpperInvariant();
+            }
+
+            return $"{words[0][0]}{words[^1][0]}".ToUpperInvariant();
+        }
+    }
+
+    private string SizeClass => Size switch
+    {
+        "sm" => "avatar--sm",
+        "lg" => "avatar--lg",
+        _ => string.Empty
+    };
+
+    private string ColorClass
+    {
+        get
+        {
+            var hash = 0;
+            foreach (var character in Name.ToUpperInvariant())
+            {
+                hash = (hash * 31 + character) & 0x7FFFFFFF;
+            }
+
+            return $"avatar--{hash % 6 + 1}";
+        }
+    }
+}

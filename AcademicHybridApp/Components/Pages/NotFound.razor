@@ -1,5 +1,22 @@
 ﻿@page "/not-found"
 @layout MainLayout
 
-<h3>Not Found</h3>
-<p>Sorry, the content you are looking for does not exist.</p>
+<div class="page-head">
+    <p class="eyebrow">404</p>
+    <h1 class="page-title">Halaman tidak ditemukan.</h1>
+    <p class="page-subtitle">Tautan yang kamu buka tidak tersedia atau sudah dipindahkan.</p>
+</div>
+
+<div class="preview-section">
+    <div class="card empty-state">
+        <span class="empty-state__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="6.5" />
+                <path d="m16 16 4.5 4.5" />
+            </svg>
+        </span>
+        <h2 class="empty-state__title">Tidak ada yang bisa ditampilkan</h2>
+        <p class="empty-state__text">Kembali ke beranda untuk melanjutkan.</p>
+        <a class="btn btn-primary btn--sm" href="">Kembali ke beranda</a>
+    </div>
+</div>

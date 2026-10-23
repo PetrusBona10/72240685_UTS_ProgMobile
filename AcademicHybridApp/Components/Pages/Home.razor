@@ -1,5 +1,195 @@
 ﻿@page "/"
 
-<h1>Hello, world!</h1>
+<div class="page-head">
+    <p class="eyebrow">Design system · Pratinjau</p>
+    <h1 class="page-title">Ruang akademik yang hangat.</h1>
+    <p class="page-subtitle">
+        Pratinjau komponen Kampus Senja sebelum dashboard dan halaman daftar dibangun.
+        Palet, tipografi, dan ritme ruang di bawah ini akan dipakai di seluruh aplikasi.
+    </p>
+</div>
 
-Welcome to your new app.
+<section class="preview-section">
+    <div class="section-heading">
+        <h2 class="section-title">Kartu editorial</h2>
+        <span class="badge badge--teal">Komponen</span>
+    </div>
+
+    <article class="card card--tinted">
+        <div class="card__header">
+            <InitialsAvatar Name="Anindita Rahmawati" Size="lg" />
+            <div class="card__heading">
+                <h3 class="card__title">Dr. Anindita Rahmawati</h3>
+                <p class="card__meta">Dosen · Teknik Informatika</p>
+            </div>
+            <span class="badge badge--success">Aktif</span>
+        </div>
+        <p class="card__body-text">
+            Kartu menjadi wadah utama informasi. Sudut membulat, garis hangat, dan bayangan
+            berlapis tipis menjaga konten tetap terasa ringan di layar kecil.
+        </p>
+        <div class="card__footer">
+            <span class="eyebrow">NIDN 0412078601</span>
+            <button class="btn btn-ghost btn--sm" type="button">Lihat profil</button>
+        </div>
+    </article>
+</section>
+
+<section class="preview-section">
+    <div class="section-heading">
+        <h2 class="section-title">Tombol aksi</h2>
+    </div>
+    <div class="button-row">
+        <button class="btn btn-primary" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                <path d="M12 5v14M5 12h14" />
+            </svg>
+            Tambah data
+        </button>
+        <button class="btn btn-ghost" type="button">Lihat detail</button>
+        <button class="btn btn-danger" type="button">Hapus</button>
+    </div>
+    <div class="button-row">
+        <button class="btn btn-primary btn--sm" type="button">Simpan</button>
+        <button class="btn btn-ghost btn--sm" type="button">Batal</button>
+        <button class="btn btn-danger btn--sm" type="button">Hapus</button>
+    </div>
+</section>
+
+<section class="preview-section">
+    <div class="section-heading">
+        <h2 class="section-title">Formulir</h2>
+        <span class="badge badge--neutral">Input</span>
+    </div>
+    <div class="card">
+        <div class="form-group">
+            <label class="form-label" for="preview-nama">Nama lengkap</label>
+            <input class="form-control" id="preview-nama" type="text" placeholder="cth. Dr. Anindita Rahmawati" />
+            <p class="form-hint">Gunakan nama beserta gelar sesuai data kampus.</p>
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="preview-prodi">Program studi</label>
+            <select class="form-control" id="preview-prodi">
+                <option>Teknik Informatika</option>
+                <option>Sistem Informasi</option>
+                <option>Manajemen Informatika</option>
+            </select>
+        </div>
+        <div class="form-group form-group--error">
+            <label class="form-label" for="preview-nidn">NIDN</label>
+            <input class="form-control" id="preview-nidn" type="text" value="0412" aria-invalid="true" />
+            <p class="form-error">NIDN minimal 10 digit.</p>
+        </div>
+    </div>
+</section>
+
+<section class="preview-section">
+    <div class="section-heading">
+        <h2 class="section-title">Badge & avatar</h2>
+    </div>
+    <div class="card">
+        <div class="badge-row">
+            <span class="badge badge--neutral">Draft</span>
+            <span class="badge badge--teal">Baru</span>
+            <span class="badge badge--success">Aktif</span>
+            <span class="badge badge--warning">Menunggu</span>
+            <span class="badge badge--danger">Nonaktif</span>
+        </div>
+        <hr class="divider" />
+        <div class="avatar-row">
+            <InitialsAvatar Name="Anindita Rahmawati" />
+            <InitialsAvatar Name="Budi Santoso" />
+            <InitialsAvatar Name="Citra Lestari" />
+            <InitialsAvatar Name="Dewi Anggraini" />
+            <InitialsAvatar Name="Eko Prasetyo" Size="sm" />
+            <InitialsAvatar Name="Fajar Nugroho" Size="lg" />
+        </div>
+        <p class="form-hint form-hint--spaced">Warna avatar dipilih otomatis dari nama.</p>
+    </div>
+</section>
+
+<section class="preview-section">
+    <div class="section-heading">
+        <h2 class="section-title">Skeleton loading</h2>
+    </div>
+    <div class="card">
+        <div class="skeleton-row">
+            <span class="skeleton skeleton-avatar"></span>
+            <div class="skeleton-stack">
+                <span class="skeleton skeleton-line skeleton-line--lg"></span>
+                <span class="skeleton skeleton-line skeleton-line--md"></span>
+            </div>
+        </div>
+        <span class="skeleton skeleton-block"></span>
+    </div>
+</section>
+
+<section class="preview-section">
+    <div class="section-heading">
+        <h2 class="section-title">State kosong</h2>
+    </div>
+    <div class="card empty-state">
+        <span class="empty-state__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h11A2.5 2.5 0 0 1 20 7.5v9a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5v-9Z" />
+                <path d="M8 12h8M8 15.5h5" />
+            </svg>
+        </span>
+        <h3 class="empty-state__title">Belum ada data dosen</h3>
+        <p class="empty-state__text">
+            Mulai dengan menambahkan dosen pertama. Data yang tersimpan akan tampil di halaman ini.
+        </p>
+        <button class="btn btn-primary btn--sm" type="button">Tambah dosen</button>
+    </div>
+</section>
+
+<section class="preview-section">
+    <div class="section-heading">
+        <h2 class="section-title">Toast</h2>
+        <span class="badge badge--warning">Notifikasi</span>
+    </div>
+    <div class="toast-stack">
+        <div class="toast toast--success" role="status">
+            <span class="toast__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m5 12.5 4.5 4.5L19 7.5" />
+                </svg>
+            </span>
+            <div class="toast__content">
+                <p class="toast__title">Data berhasil disimpan</p>
+                <p class="toast__message">Data dosen sudah diperbarui di server.</p>
+            </div>
+            <button class="toast__close" type="button" aria-label="Tutup notifikasi">×</button>
+        </div>
+
+        <div class="toast toast--danger" role="alert">
+            <span class="toast__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M12 7.5v5M12 16.2v.1" />
+                </svg>
+            </span>
+            <div class="toast__content">
+                <p class="toast__title">Gagal menghapus data</p>
+                <p class="toast__message">Tidak dapat terhubung ke server. Pastikan API sudah berjalan.</p>
+            </div>
+            <button class="toast__close" type="button" aria-label="Tutup notifikasi">×</button>
+        </div>
+    </div>
+</section>
+
+<section class="preview-section">
+    <div class="section-heading">
+        <h2 class="section-title">Tombol aksi mengambang</h2>
+    </div>
+    <div class="fab-preview">
+        <p class="fab-preview__label">
+            FAB dipakai di halaman daftar untuk aksi utama, misalnya menambah data baru.
+        </p>
+        <button class="fab" type="button" aria-label="Tambah data">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+                <path d="M12 5v14M5 12h14" />
+            </svg>
+        </button>
+    </div>
+</section>
