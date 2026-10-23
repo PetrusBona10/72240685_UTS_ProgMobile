@@ -3,7 +3,7 @@
 ## Deskripsi Aplikasi
 Sistem Informasi Akademik Sederhana (Academic System) adalah aplikasi sederhana untuk mengelola data akademik berupa **Dosen** dan **Mahasiswa**. Aplikasi ini terdiri dari:
 - **Backend API**: ASP.NET Core Web API 10.0 dengan Entity Framework Core dan SQLite
-- **Frontend Mobile/Desktop Hybrid**: .NET MAUI Blazor Hybrid (net10.0-android, net10.0-windows) dengan desain tema **Kampus Senja**
+- **Frontend Mobile/Desktop Hybrid**: .NET MAUI Blazor Hybrid (net10.0-android, net10.0-windows)
 
 ## Arsitektur
 ```
@@ -105,7 +105,6 @@ Saat API dijalankan, `SeedData.Initialize(db)` akan mengisi data awal:
 | Global 500 | - | Error tidak terduga | `500 Internal Server Error` `{"message": "Terjadi kesalahan pada server. Silakan coba lagi."}` |
 
 ## Fitur Bonus yang Dikerjakan
-- **Tema "Kampus Senja"** - Desain konsisten dengan CSS variables, tipografi sistem, bottom navigation
 - **Shared Components** - `ToastService`/`ToastHost`, `ConfirmDialog`, `LoadingState`, `EmptyState`, `ErrorState`, `InitialsAvatar`
 - **Dashboard Beranda** - Statistik dosen/mahasiswa, mahasiswa terbaru, pintasan tambah
 - **Penanganan Error Terpusat** - `ApiServiceBase`, `ApiErrorReader`, pesan error Indonesia
@@ -125,7 +124,7 @@ Saat API dijalankan, `SeedData.Initialize(db)` akan mengisi data awal:
 | T05 | Hapus dengan konfirmasi (hapus berhasil) | Berhasil |
 | T06 | Error 404/409/400 dari API ditampilkan dengan pesan Indonesia | Berhasil |
 | T07 | Navigasi bottom nav & routing halaman | Berhasil |
-| T08 | Tampilan responsif & desain Kampus Senja | Berhasil |
+| T08 | Tampilan responsif & desain aplikasi | Berhasil |
 | T09 | Offline/online retry - matikan API, buka app, tampil ErrorState + tombol Coba Lagi; hidupkan API, klik Coba Lagi, data muncul | Berhasil |
 
 ## Catatan Keamanan

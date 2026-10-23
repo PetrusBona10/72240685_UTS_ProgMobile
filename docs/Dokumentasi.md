@@ -3,7 +3,7 @@
 > Dokumen ini dapat diekspor ke PDF atau DOCX (gunakan Microsoft Word, LibreOffice Writer, atau browser "Save as PDF").
 
 ## 1. Deskripsi Aplikasi
-Sistem Informasi Akademik Sederhana untuk mengelola data Dosen dan Mahasiswa. Terdiri dari ASP.NET Core Web API dan .NET MAUI Blazor Hybrid dengan tema "Kampus Senja".
+Sistem Informasi Akademik Sederhana untuk mengelola data Dosen dan Mahasiswa. Terdiri dari ASP.NET Core Web API dan .NET MAUI Blazor Hybrid.
 
 ## 2. Arsitektur
 ```
@@ -59,7 +59,7 @@ Letakkan screenshot berikut di `docs/screenshots/`:
 | T05 | Hapus dengan konfirmasi (hapus berhasil) | Berhasil |
 | T06 | Error 404/409/400 dari API ditampilkan dengan pesan Indonesia | Berhasil |
 | T07 | Navigasi bottom nav & routing halaman | Berhasil |
-| T08 | Tampilan responsif & desain Kampus Senja | Berhasil |
+| T08 | Tampilan responsif & desain aplikasi | Berhasil |
 | T09 | Offline/online retry | Berhasil |
 
 ## 8. Catatan
