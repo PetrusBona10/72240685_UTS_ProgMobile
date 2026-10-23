@@ -201,6 +201,140 @@ svg {
     line-height: 1.65;
 }
 
+.text-link {
+    color: var(--teal);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.text-link:hover {
+    color: var(--teal-deep);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 26px;
+}
+
+.stat-card {
+    position: relative;
+    overflow: hidden;
+    padding: 18px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+}
+
+.stat-card--dosen {
+    background: linear-gradient(150deg, #E9F4F1 0%, #FFFFFF 68%);
+}
+
+.stat-card--mahasiswa {
+    background: linear-gradient(150deg, #FCF0DC 0%, #FFFFFF 68%);
+}
+
+.stat-card__icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+}
+
+.stat-card--dosen .stat-card__icon {
+    background: var(--teal-soft);
+    color: var(--teal);
+}
+
+.stat-card--mahasiswa .stat-card__icon {
+    background: var(--amber-soft);
+    color: #A16207;
+}
+
+.stat-card__icon svg {
+    width: 22px;
+    height: 22px;
+}
+
+.stat-card__label {
+    margin-top: 16px;
+    color: var(--muted);
+    font-size: 0.625rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.stat-card__value {
+    margin-top: 2px;
+    font-size: clamp(2.4rem, 9vw, 3.2rem);
+    font-weight: 800;
+    letter-spacing: -0.045em;
+    line-height: 1;
+}
+
+.stat-card__hint {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 0.75rem;
+    line-height: 1.4;
+}
+
+.dashboard-recent {
+    padding: 6px 20px;
+}
+
+.recent-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 0;
+}
+
+.recent-item + .recent-item {
+    border-top: 1px solid var(--line);
+}
+
+.recent-item__content {
+    flex: 1;
+    min-width: 0;
+}
+
+.recent-item__name {
+    overflow: hidden;
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.recent-item__meta {
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: 0.75rem;
+    line-height: 1.5;
+}
+
+.recent-item .badge {
+    flex: none;
+}
+
+.dashboard-actions {
+    display: grid;
+    gap: 10px;
+}
+
+.dashboard-actions .btn {
+    min-height: 52px;
+}
+
 .preview-section {
     display: flex;
     flex-direction: column;
@@ -1127,6 +1261,12 @@ textarea.form-control {
 
 .status-bar-safe-area {
     display: none;
+}
+
+@media (min-width: 600px) {
+    .dashboard-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 @media (min-width: 760px) {

@@ -1,236 +1,195 @@
 ﻿@page "/"
-@inject ToastService ToastService
+@using AcademicHybridApp.Models
+@using AcademicHybridApp.Services
+@inject IDosenService DosenService
+@inject IMahasiswaService MahasiswaService
 
 <div class="page-head">
-    <p class="eyebrow">Design system · Pratinjau</p>
-    <h1 class="page-title">Ruang akademik yang hangat.</h1>
+    <p class="eyebrow">@TanggalHariIni</p>
+    <h1 class="page-title">Administrasi Akademik</h1>
     <p class="page-subtitle">
-        Pratinjau komponen Kampus Senja sebelum dashboard dan halaman daftar dibangun.
-        Palet, tipografi, dan ritme ruang di bawah ini akan dipakai di seluruh aplikasi.
+        Selamat datang kembali. Berikut ringkasan data dosen dan mahasiswa yang tersimpan
+        di sistem akademik.
     </p>
 </div>
 
-<section class="preview-section">
-    <div class="section-heading">
-        <h2 class="section-title">Kartu editorial</h2>
-        <span class="badge badge--teal">Komponen</span>
-    </div>
+@if (_isLoading)
+{
+    <section class="preview-section" aria-label="Memuat ringkasan akademik">
+        <LoadingState Count="2" />
+    </section>
+}
+else if (_errorMessage is not null)
+{
+    <section class="preview-section">
+        <ErrorState Title="Data akademik belum tersedia"
+                    Message="@_errorMessage"
+                    OnRetry="LoadAsync" />
+    </section>
+}
+else
+{
+    <section class="dashboard-stats" aria-label="Statistik akademik">
+        <article class="stat-card stat-card--dosen">
+            <span class="stat-card__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 3 2.5 7.5 12 12l9.5-4.5L12 3Z" />
+                    <path d="M6.5 10v4.5c0 1.8 2.5 3.5 5.5 3.5s5.5-1.7 5.5-3.5V10" />
+                    <path d="M21.5 7.5v5" />
+                </svg>
+            </span>
+            <p class="stat-card__label">Total Dosen</p>
+            <p class="stat-card__value">@_dosen.Count</p>
+            <p class="stat-card__hint">Dosen terdaftar</p>
+        </article>
 
-    <article class="card card--tinted">
-        <div class="card__header">
-            <InitialsAvatar Name="Anindita Rahmawati" Size="lg" />
-            <div class="card__heading">
-                <h3 class="card__title">Dr. Anindita Rahmawati</h3>
-                <p class="card__meta">Dosen · Teknik Informatika</p>
+        <article class="stat-card stat-card--mahasiswa">
+            <span class="stat-card__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="9" cy="8" r="3.2" />
+                    <path d="M3.5 20c0-3 2.5-5.2 5.5-5.2s5.5 2.2 5.5 5.2" />
+                    <path d="M16 5.3a3.2 3.2 0 0 1 0 5.4" />
+                    <path d="M17.5 14.9c2.1.7 3.5 2.5 3.5 5.1" />
+                </svg>
+            </span>
+            <p class="stat-card__label">Total Mahasiswa</p>
+            <p class="stat-card__value">@_mahasiswa.Count</p>
+            <p class="stat-card__hint">Mahasiswa terdaftar</p>
+        </article>
+    </section>
+
+    <section class="preview-section">
+        <div class="section-heading">
+            <h2 class="section-title">Mahasiswa terbaru</h2>
+            <a class="text-link" href="mahasiswa">Lihat semua</a>
+        </div>
+
+        @if (_latestMahasiswa.Count == 0)
+        {
+            <EmptyState Title="Belum ada mahasiswa"
+                        Message="Data mahasiswa terbaru akan muncul di sini setelah ditambahkan.">
+                <a class="btn btn-primary btn--sm" href="mahasiswa/tambah">Tambah mahasiswa</a>
+            </EmptyState>
+        }
+        else
+        {
+            <div class="card dashboard-recent">
+                @foreach (var mahasiswa in _latestMahasiswa)
+                {
+                    <div class="recent-item">
+                        <InitialsAvatar Name="@mahasiswa.NamaMahasiswa" />
+                        <div class="recent-item__content">
+                            <p class="recent-item__name">@mahasiswa.NamaMahasiswa</p>
+                            <p class="recent-item__meta">
+                                @mahasiswa.Nim · Wali: @mahasiswa.NamaDosenWali
+                            </p>
+                        </div>
+                        <span class="badge badge--neutral">@mahasiswa.Angkatan</span>
+                    </div>
+                }
             </div>
-            <span class="badge badge--success">Aktif</span>
+        }
+    </section>
+
+    <section class="preview-section">
+        <div class="section-heading">
+            <h2 class="section-title">Pintasan</h2>
         </div>
-        <p class="card__body-text">
-            Kartu menjadi wadah utama informasi. Sudut membulat, garis hangat, dan bayangan
-            berlapis tipis menjaga konten tetap terasa ringan di layar kecil.
-        </p>
-        <div class="card__footer">
-            <span class="eyebrow">NIDN 0412078601</span>
-            <button class="btn btn-ghost btn--sm" type="button">Lihat profil</button>
+        <div class="dashboard-actions">
+            <a class="btn btn-primary" href="dosen/tambah">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 3 2.5 7.5 12 12l9.5-4.5L12 3Z" />
+                    <path d="M6.5 10v4.5c0 1.8 2.5 3.5 5.5 3.5s5.5-1.7 5.5-3.5V10" />
+                    <path d="M21.5 7.5v5" />
+                </svg>
+                Tambah Dosen
+            </a>
+            <a class="btn btn-ghost" href="mahasiswa/tambah">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="9" cy="7.5" r="3" />
+                    <path d="M3.5 19c0-2.8 2.5-4.8 5.5-4.8s5.5 2 5.5 4.8" />
+                    <path d="M18 8v6M15 11h6" />
+                </svg>
+                Tambah Mahasiswa
+            </a>
         </div>
-    </article>
-</section>
-
-<section class="preview-section">
-    <div class="section-heading">
-        <h2 class="section-title">Tombol aksi</h2>
-    </div>
-    <div class="button-row">
-        <button class="btn btn-primary" type="button">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-                <path d="M12 5v14M5 12h14" />
-            </svg>
-            Tambah data
-        </button>
-        <button class="btn btn-ghost" type="button">Lihat detail</button>
-        <button class="btn btn-danger" type="button">Hapus</button>
-    </div>
-    <div class="button-row">
-        <button class="btn btn-primary btn--sm" type="button">Simpan</button>
-        <button class="btn btn-ghost btn--sm" type="button">Batal</button>
-        <button class="btn btn-danger btn--sm" type="button">Hapus</button>
-    </div>
-</section>
-
-<section class="preview-section">
-    <div class="section-heading">
-        <h2 class="section-title">Formulir</h2>
-        <span class="badge badge--neutral">Input</span>
-    </div>
-    <div class="card">
-        <div class="form-group">
-            <label class="form-label" for="preview-nama">Nama lengkap</label>
-            <input class="form-control" id="preview-nama" type="text" placeholder="cth. Dr. Anindita Rahmawati" />
-            <p class="form-hint">Gunakan nama beserta gelar sesuai data kampus.</p>
-        </div>
-        <div class="form-group">
-            <label class="form-label" for="preview-prodi">Program studi</label>
-            <select class="form-control" id="preview-prodi">
-                <option>Teknik Informatika</option>
-                <option>Sistem Informasi</option>
-                <option>Manajemen Informatika</option>
-            </select>
-        </div>
-        <div class="form-group form-group--error">
-            <label class="form-label" for="preview-nidn">NIDN</label>
-            <input class="form-control" id="preview-nidn" type="text" value="0412" aria-invalid="true" />
-            <p class="form-error">NIDN minimal 10 digit.</p>
-        </div>
-    </div>
-</section>
-
-<section class="preview-section">
-    <div class="section-heading">
-        <h2 class="section-title">Badge & avatar</h2>
-    </div>
-    <div class="card">
-        <div class="badge-row">
-            <span class="badge badge--neutral">Draft</span>
-            <span class="badge badge--teal">Baru</span>
-            <span class="badge badge--success">Aktif</span>
-            <span class="badge badge--warning">Menunggu</span>
-            <span class="badge badge--danger">Nonaktif</span>
-        </div>
-        <hr class="divider" />
-        <div class="avatar-row">
-            <InitialsAvatar Name="Anindita Rahmawati" />
-            <InitialsAvatar Name="Budi Santoso" />
-            <InitialsAvatar Name="Citra Lestari" />
-            <InitialsAvatar Name="Dewi Anggraini" />
-            <InitialsAvatar Name="Eko Prasetyo" Size="sm" />
-            <InitialsAvatar Name="Fajar Nugroho" Size="lg" />
-        </div>
-        <p class="form-hint form-hint--spaced">Warna avatar dipilih otomatis dari nama.</p>
-    </div>
-</section>
-
-<section class="preview-section">
-    <div class="section-heading">
-        <h2 class="section-title">Notifikasi</h2>
-        <span class="badge badge--warning">Toast</span>
-    </div>
-    <div class="card">
-        <p class="card__body-text">
-            Notifikasi muncul selama sekitar empat detik, dapat ditutup manual, dan memakai
-            warna serta ikon berbeda untuk sukses dan gagal.
-        </p>
-        <div class="button-row button-row--spaced">
-            <button class="btn btn-primary btn--sm" type="button" @onclick="ShowSuccessToast">Toast sukses</button>
-            <button class="btn btn-danger btn--sm" type="button" @onclick="ShowErrorToast">Toast gagal</button>
-        </div>
-    </div>
-</section>
-
-<section class="preview-section">
-    <div class="section-heading">
-        <h2 class="section-title">Dialog konfirmasi</h2>
-    </div>
-    <div class="card">
-        <p class="card__body-text">
-            Dialog hapus menahan aksi selama proses berjalan. Tombol Batal dan Hapus
-            dinonaktifkan sampai proses selesai.
-        </p>
-        <div class="button-row button-row--spaced">
-            <button class="btn btn-danger btn--sm" type="button" @onclick="OpenConfirmDialog">Hapus data contoh</button>
-        </div>
-    </div>
-</section>
-
-<section class="preview-section">
-    <div class="section-heading">
-        <h2 class="section-title">Skeleton loading</h2>
-    </div>
-    <LoadingState Count="2" />
-</section>
-
-<section class="preview-section">
-    <div class="section-heading">
-        <h2 class="section-title">State kosong</h2>
-    </div>
-    <EmptyState Title="Belum ada data dosen"
-                Message="Mulai dengan menambahkan dosen pertama. Data yang tersimpan akan tampil di halaman ini.">
-        <button class="btn btn-primary btn--sm" type="button" @onclick="ShowSuccessToast">Tambah dosen</button>
-    </EmptyState>
-</section>
-
-<section class="preview-section">
-    <div class="section-heading">
-        <h2 class="section-title">State gagal koneksi</h2>
-    </div>
-    <ErrorState OnRetry="HandleRetry" />
-</section>
-
-<section class="preview-section">
-    <div class="section-heading">
-        <h2 class="section-title">Tombol aksi mengambang</h2>
-    </div>
-    <div class="fab-preview">
-        <p class="fab-preview__label">
-            FAB dipakai di halaman daftar untuk aksi utama, misalnya menambah data baru.
-        </p>
-        <button class="fab" type="button" aria-label="Tambah data">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
-                <path d="M12 5v14M5 12h14" />
-            </svg>
-        </button>
-    </div>
-</section>
-
-<ConfirmDialog Visible="_confirmVisible"
-               Title="Hapus data dosen?"
-               Message="Data dosen akan dihapus permanen dan tidak dapat dikembalikan."
-               IsProcessing="_confirmProcessing"
-               OnConfirm="ConfirmDeleteAsync"
-               OnCancel="CancelDelete" />
+    </section>
+}
 
 @code {
-    private bool _confirmVisible;
-    private bool _confirmProcessing;
-
-    private void ShowSuccessToast()
+    private static readonly string[] _namaHari =
     {
-        ToastService.ShowSuccess("Data berhasil disimpan", "Data dosen sudah diperbarui di server.");
-    }
+        "Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"
+    };
 
-    private void ShowErrorToast()
+    private static readonly string[] _namaBulan =
     {
-        ToastService.ShowError("Gagal menghapus data", "Tidak dapat terhubung ke server. Pastikan API sudah berjalan.");
-    }
+        "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+        "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+    };
 
-    private void OpenConfirmDialog()
-    {
-        _confirmProcessing = false;
-        _confirmVisible = true;
-    }
+    private List<DosenModel> _dosen = new();
+    private List<MahasiswaModel> _mahasiswa = new();
+    private List<MahasiswaModel> _latestMahasiswa = new();
+    private bool _isLoading = true;
+    private string? _errorMessage;
 
-    private void CancelDelete()
+    private string TanggalHariIni
     {
-        if (_confirmProcessing)
+        get
         {
-            return;
+            var today = DateTime.Today;
+            return $"{_namaHari[(int)today.DayOfWeek]}, {today.Day} {_namaBulan[today.Month - 1]} {today.Year}";
         }
-
-        _confirmVisible = false;
     }
 
-    private async Task ConfirmDeleteAsync()
+    protected override Task OnInitializedAsync()
     {
-        _confirmProcessing = true;
+        return LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
         StateHasChanged();
-        await Task.Delay(1200);
-        _confirmProcessing = false;
-        _confirmVisible = false;
 
-        ToastService.ShowSuccess("Data berhasil dihapus", "Data dosen contoh sudah dihapus.");
-    }
+        try
+        {
+            var dosenTask = DosenService.GetAllAsync();
+            var mahasiswaTask = MahasiswaService.GetAllAsync();
 
-    private void HandleRetry()
-    {
-        ToastService.ShowSuccess("Koneksi dipulihkan", "Data berhasil dimuat ulang.");
+            await Task.WhenAll(dosenTask, mahasiswaTask);
+
+            var dosenResult = await dosenTask;
+            var mahasiswaResult = await mahasiswaTask;
+
+            if (!dosenResult.Success)
+            {
+                _errorMessage = dosenResult.Message;
+                return;
+            }
+
+            if (!mahasiswaResult.Success)
+            {
+                _errorMessage = mahasiswaResult.Message;
+                return;
+            }
+
+            _dosen = dosenResult.Data ?? new List<DosenModel>();
+            _mahasiswa = mahasiswaResult.Data ?? new List<MahasiswaModel>();
+            _latestMahasiswa = _mahasiswa
+                .OrderByDescending(mahasiswa => mahasiswa.MahasiswaId)
+                .Take(3)
+                .ToList();
+        }
+        catch (Exception)
+        {
+            _errorMessage = "Tidak dapat terhubung ke server. Pastikan API sudah berjalan.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
     }
 }
