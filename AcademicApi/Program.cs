@@ -1,3 +1,6 @@
+using AcademicApi.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -5,6 +8,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder.Services.AddDbContext<AcademicDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("AcademicDb")));
 
 var app = builder.Build();
 
@@ -14,10 +20,15 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
-
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AcademicDbContext>();
+    db.Database.Migrate();
+    SeedData.Initialize(db);
+}
 
 app.Run();
