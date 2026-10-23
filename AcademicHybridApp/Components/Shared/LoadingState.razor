@@ -1,0 +1,22 @@
+@namespace AcademicHybridApp.Components.Shared
+
+<div class="loading-state" role="status" aria-label="Memuat data" aria-busy="true">
+    @for (var index = 0; index < Count; index++)
+    {
+        <div class="card">
+            <div class="skeleton-row">
+                <span class="skeleton skeleton-avatar"></span>
+                <div class="skeleton-stack">
+                    <span class="skeleton skeleton-line skeleton-line--lg"></span>
+                    <span class="skeleton skeleton-line skeleton-line--md"></span>
+                </div>
+            </div>
+            <span class="skeleton skeleton-block"></span>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int Count { get; set; } = 1;
+}

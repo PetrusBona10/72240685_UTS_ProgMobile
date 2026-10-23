@@ -1,4 +1,5 @@
-﻿using AcademicHybridApp.Services;
+﻿using AcademicHybridApp.Components.Shared;
+using AcademicHybridApp.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -17,6 +18,7 @@ public static class MauiProgram
 			});
 
 		builder.Services.AddMauiBlazorWebView();
+		builder.Services.AddScoped<ToastService>();
 
 		builder.Services.AddHttpClient<IDosenService, DosenService>(client =>
 		{

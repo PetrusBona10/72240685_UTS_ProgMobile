@@ -1,0 +1,72 @@
+@namespace AcademicHybridApp.Components.Shared
+
+@if (Visible)
+{
+    <div class="modal-backdrop" @onclick="HandleBackdropClickAsync">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title" @onclick:stopPropagation="true">
+            <span class="modal__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 7h16M10 4h4M6.5 7l.8 12.2A1.8 1.8 0 0 0 9.1 21h5.8a1.8 1.8 0 0 0 1.8-1.8L17.5 7" />
+                    <path d="M10 11v6M14 11v6" />
+                </svg>
+            </span>
+            <h2 class="modal__title" id="confirm-dialog-title">@Title</h2>
+            <p class="modal__message">@Message</p>
+            <div class="modal__actions">
+                <button class="btn btn-ghost" type="button" disabled="@IsProcessing" @onclick="CancelAsync">Batal</button>
+                <button class="btn btn-danger" type="button" disabled="@IsProcessing" @onclick="ConfirmAsync">
+                    @if (IsProcessing)
+                    {
+                        <span class="btn__spinner" aria-hidden="true"></span>
+                    }
+                    Hapus
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool Visible { get; set; }
+
+    [Parameter]
+    public string Title { get; set; } = "Konfirmasi hapus";
+
+    [Parameter]
+    public string Message { get; set; } = "Data yang dihapus tidak dapat dikembalikan.";
+
+    [Parameter]
+    public bool IsProcessing { get; set; }
+
+    [Parameter]
+    public EventCallback OnConfirm { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    private async Task ConfirmAsync()
+    {
+        if (IsProcessing)
+        {
+            return;
+        }
+
+        await OnConfirm.InvokeAsync();
+    }
+
+    private async Task CancelAsync()
+    {
+        if (IsProcessing)
+        {
+            return;
+        }
+
+        await OnCancel.InvokeAsync();
+    }
+
+    private async Task HandleBackdropClickAsync()
+    {
+        await CancelAsync();
+    }
+}

@@ -1,0 +1,135 @@
+@namespace AcademicHybridApp.Components.Shared
+@implements IDisposable
+@inject ToastService ToastService
+
+<div class="toast-region" aria-live="polite" aria-atomic="false">
+    @foreach (var toast in ToastService.Toasts)
+    {
+        <div class="toast @TypeClass(toast.Type)" role="@(toast.Type == ToastType.Error ? "alert" : "status")">
+            <span class="toast__icon" aria-hidden="true">
+                @if (toast.Type == ToastType.Success)
+                {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m5 12.5 4.5 4.5L19 7.5" />
+                    </svg>
+                }
+                else
+                {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="9" />
+                        <path d="M12 7.5v5M12 16.2v.1" />
+                    </svg>
+                }
+            </span>
+            <div class="toast__content">
+                <p class="toast__title">@toast.Title</p>
+                <p class="toast__message">@toast.Message</p>
+            </div>
+            <button class="toast__close" type="button" aria-label="Tutup notifikasi" @onclick="() => Dismiss(toast.Id)">×</button>
+        </div>
+    }
+</div>
+
+@code {
+    private readonly Dictionary<Guid, CancellationTokenSource> _dismissTimers = new();
+    private bool _disposed;
+
+    protected override void OnInitialized()
+    {
+        ToastService.OnChange += HandleToastsChanged;
+        SyncTimers();
+    }
+
+    private void HandleToastsChanged()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _ = InvokeAsync(() =>
+        {
+            SyncTimers();
+            StateHasChanged();
+        });
+    }
+
+    private void SyncTimers()
+    {
+        var current = ToastService.Toasts;
+        var activeIds = new HashSet<Guid>();
+
+        foreach (var toast in current)
+        {
+            activeIds.Add(toast.Id);
+
+            if (_dismissTimers.ContainsKey(toast.Id))
+            {
+                continue;
+            }
+
+            var timer = new CancellationTokenSource();
+            _dismissTimers[toast.Id] = timer;
+            _ = AutoDismissAsync(toast.Id, timer);
+        }
+
+        foreach (var id in new List<Guid>(_dismissTimers.Keys))
+        {
+            if (activeIds.Contains(id))
+            {
+                continue;
+            }
+
+            _dismissTimers[id].Cancel();
+            _dismissTimers.Remove(id);
+        }
+    }
+
+    private async Task AutoDismissAsync(Guid id, CancellationTokenSource timer)
+    {
+        try
+        {
+            await Task.Delay(TimeSpan.FromSeconds(4), timer.Token);
+
+            if (!timer.IsCancellationRequested)
+            {
+                ToastService.Remove(id);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        finally
+        {
+            timer.Dispose();
+        }
+    }
+
+    private void Dismiss(Guid id)
+    {
+        ToastService.Remove(id);
+    }
+
+    private static string TypeClass(ToastType type)
+    {
+        return type == ToastType.Success ? "toast--success" : "toast--danger";
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+        ToastService.OnChange -= HandleToastsChanged;
+
+        foreach (var timer in _dismissTimers.Values)
+        {
+            timer.Cancel();
+        }
+
+        _dismissTimers.Clear();
+    }
+}
