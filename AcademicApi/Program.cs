@@ -34,6 +34,7 @@ builder.Services.AddDbContext<AcademicDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("AcademicDb")));
 
 builder.Services.AddScoped<IDosenDAL, DosenDAL>();
+builder.Services.AddScoped<IMahasiswaDAL, MahasiswaDAL>();
 
 var app = builder.Build();
 
