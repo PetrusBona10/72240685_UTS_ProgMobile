@@ -36,12 +36,29 @@ builder.Services.AddDbContext<AcademicDbContext>(options =>
 builder.Services.AddScoped<IDosenDAL, DosenDAL>();
 builder.Services.AddScoped<IMahasiswaDAL, MahasiswaDAL>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("DevelopmentCors", policy =>
+    {
+        policy.AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwaggerUI(options =>
+    {
+        options.RoutePrefix = "swagger";
+        options.SwaggerEndpoint("/openapi/v1.json", "Academic API v1");
+        options.DocumentTitle = "Academic API";
+    });
+    app.UseCors("DevelopmentCors");
 }
 
 app.UseAuthorization();

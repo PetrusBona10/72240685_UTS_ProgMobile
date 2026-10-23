@@ -17,6 +17,7 @@ namespace AcademicApi.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<MahasiswaDto>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<MahasiswaDto>>> GetAllAsync()
         {
             var mahasiswa = await _mahasiswaDal.GetAllAsync();
@@ -24,6 +25,8 @@ namespace AcademicApi.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [ProducesResponseType(typeof(MahasiswaDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<MahasiswaDto>> GetByIdAsync(int id)
         {
             var mahasiswa = await _mahasiswaDal.GetByIdAsync(id);
@@ -36,6 +39,10 @@ namespace AcademicApi.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(typeof(MahasiswaDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<ActionResult<MahasiswaDto>> CreateAsync(MahasiswaCreateDto dto)
         {
             var nim = dto.Nim.Trim();
@@ -67,6 +74,10 @@ namespace AcademicApi.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> UpdateAsync(int id, MahasiswaUpdateDto dto)
         {
             var mahasiswa = await _mahasiswaDal.GetByIdAsync(id);
@@ -99,6 +110,8 @@ namespace AcademicApi.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             var mahasiswa = await _mahasiswaDal.GetByIdAsync(id);

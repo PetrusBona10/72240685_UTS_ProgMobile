@@ -17,6 +17,7 @@ namespace AcademicApi.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<DosenDto>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<DosenDto>>> GetAllAsync()
         {
             var dosen = await _dosenDal.GetAllAsync();
@@ -24,6 +25,8 @@ namespace AcademicApi.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [ProducesResponseType(typeof(DosenDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<DosenDto>> GetByIdAsync(int id)
         {
             var dosen = await _dosenDal.GetByIdAsync(id);
@@ -36,6 +39,9 @@ namespace AcademicApi.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(typeof(DosenDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<ActionResult<DosenDto>> CreateAsync(DosenCreateDto dto)
         {
             var nidn = dto.Nidn.Trim();
@@ -60,6 +66,10 @@ namespace AcademicApi.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> UpdateAsync(int id, DosenUpdateDto dto)
         {
             var dosen = await _dosenDal.GetByIdAsync(id);
@@ -86,6 +96,9 @@ namespace AcademicApi.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             var dosen = await _dosenDal.GetByIdAsync(id);
