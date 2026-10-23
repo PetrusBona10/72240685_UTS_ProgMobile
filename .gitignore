@@ -485,3 +485,11 @@ $RECYCLE.BIN/
 *.db
 *.db-shm
 *.db-wal
+
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.db-shm
+*.db-wal
