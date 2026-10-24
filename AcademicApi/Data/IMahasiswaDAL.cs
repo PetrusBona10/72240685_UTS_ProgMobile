@@ -6,6 +6,13 @@ namespace AcademicApi.Data
     {
         Task<IEnumerable<Mahasiswa>> GetAllAsync();
 
+        Task<(IEnumerable<Mahasiswa> Items, int TotalCount)> GetFilteredAsync(
+            string? search,
+            string? sortBy,
+            string? sortDir,
+            int? page,
+            int? pageSize);
+
         Task<Mahasiswa?> GetByIdAsync(int id);
 
         Task<bool> NimExistsAsync(string nim, int? excludeMahasiswaId = null);

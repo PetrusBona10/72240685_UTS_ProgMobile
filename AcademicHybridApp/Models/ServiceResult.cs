@@ -33,6 +33,8 @@ namespace AcademicHybridApp.Models
 
         public T? Data { get; set; }
 
+        public int TotalCount { get; set; }
+
         public static ServiceResult<T> Ok(T data, string message = "Berhasil.")
         {
             return new ServiceResult<T>
@@ -43,7 +45,7 @@ namespace AcademicHybridApp.Models
             };
         }
 
-        public static ServiceResult<T> Fail(string message)
+        public static ServiceResult<T> Fail(string message, int? statusCode = null)
         {
             return new ServiceResult<T>
             {

@@ -8,6 +8,8 @@ namespace AcademicHybridApp.Services
     {
         private readonly HttpClient _httpClient;
 
+        protected HttpClient HttpClient => _httpClient;
+
         protected ApiServiceBase(HttpClient httpClient)
         {
             _httpClient = httpClient;

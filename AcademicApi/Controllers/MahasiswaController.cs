@@ -18,10 +18,59 @@ namespace AcademicApi.Controllers
 
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<MahasiswaDto>), StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<MahasiswaDto>>> GetAllAsync()
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<MahasiswaDto>>> GetAllAsync(
+            [FromQuery] string? search,
+            [FromQuery] string? sortBy,
+            [FromQuery] string? sortDir,
+            [FromQuery] int? page,
+            [FromQuery] int? pageSize)
         {
-            var mahasiswa = await _mahasiswaDal.GetAllAsync();
-            return Ok(mahasiswa.Select(ToDto).ToList());
+            if (page.HasValue || pageSize.HasValue)
+            {
+                if (!page.HasValue || !pageSize.HasValue)
+                {
+                    return BadRequest(new { message = "page dan pageSize harus diisi bersamaan." });
+                }
+
+                if (page.Value < 1)
+                {
+                    return BadRequest(new { message = "page harus bernilai minimal 1." });
+                }
+
+                if (pageSize.Value < 1 || pageSize.Value > 100)
+                {
+                    return BadRequest(new { message = "pageSize harus bernilai antara 1 dan 100." });
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(sortBy))
+            {
+                var sb = sortBy.Trim().ToLower();
+                if (sb != "nama" && sb != "nim" && sb != "angkatan")
+                {
+                    return BadRequest(new { message = "sortBy hanya boleh: nama, nim, atau angkatan." });
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(sortDir))
+            {
+                var sd = sortDir.Trim().ToLower();
+                if (sd != "asc" && sd != "desc")
+                {
+                    return BadRequest(new { message = "sortDir hanya boleh: asc atau desc." });
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(search) && string.IsNullOrWhiteSpace(sortBy) && string.IsNullOrWhiteSpace(sortDir) && !page.HasValue && !pageSize.HasValue)
+            {
+                var mahasiswa = await _mahasiswaDal.GetAllAsync();
+                return Ok(mahasiswa.Select(ToDto).ToList());
+            }
+
+            var result = await _mahasiswaDal.GetFilteredAsync(search, sortBy, sortDir, page, pageSize);
+            Response.Headers["X-Total-Count"] = result.TotalCount.ToString();
+            return Ok(result.Items.Select(ToDto).ToList());
         }
 
         [HttpGet("{id:int}")]

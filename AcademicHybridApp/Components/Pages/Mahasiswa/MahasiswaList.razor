@@ -1,6 +1,8 @@
 @page "/mahasiswa"
 @inherits EntityListPageBase<MahasiswaModel>
 @inject IMahasiswaService MahasiswaService
+@using System.Timers
+@implements IDisposable
 
 <div class="page-head">
     <p class="eyebrow">Data akademik</p>
@@ -9,6 +11,29 @@
         Kelola data mahasiswa, mulai dari NIM, nama, email, angkatan, hingga dosen wali.
     </p>
 </div>
+
+<section class="preview-section" aria-label="Filter dan pencarian mahasiswa">
+    <div class="filter-bar">
+        <div class="filter-bar__group filter-bar__group--search">
+            <label class="form-label" for="mahasiswa-search">Cari</label>
+            <input id="mahasiswa-search" class="form-input" type="search" placeholder="Cari NIM atau nama..." @bind="SearchTerm" @bind:event="oninput" />
+        </div>
+        <div class="filter-bar__group">
+            <label class="form-label" for="mahasiswa-sortby">Urut berdasarkan</label>
+            <select id="mahasiswa-sortby" class="form-select" @bind="SortBy">
+                <option value="nama">Nama</option>
+                <option value="angkatan">Angkatan</option>
+            </select>
+        </div>
+        <div class="filter-bar__group">
+            <label class="form-label" for="mahasiswa-sortdir">Arah</label>
+            <select id="mahasiswa-sortdir" class="form-select" @bind="SortDir">
+                <option value="asc">Naik</option>
+                <option value="desc">Turun</option>
+            </select>
+        </div>
+    </div>
+</section>
 
 @if (IsLoading)
 {
@@ -27,10 +52,18 @@ else if (ErrorMessage is not null)
 else if (Items.Count == 0)
 {
     <section class="preview-section">
-        <EmptyState Title="Belum ada data mahasiswa"
-                    Message="Mulai dengan menambahkan mahasiswa pertama ke sistem akademik.">
-            <a class="btn btn-primary btn--sm" href="/mahasiswa/tambah">Tambah Mahasiswa</a>
-        </EmptyState>
+        @if (!string.IsNullOrWhiteSpace(SearchTerm))
+        {
+            <EmptyState Title="Tidak ada hasil"
+                        Message="Tidak ada mahasiswa yang cocok dengan pencarian Anda." />
+        }
+        else
+        {
+            <EmptyState Title="Belum ada data mahasiswa"
+                        Message="Mulai dengan menambahkan mahasiswa pertama ke sistem akademik.">
+                <a class="btn btn-primary btn--sm" href="/mahasiswa/tambah">Tambah Mahasiswa</a>
+            </EmptyState>
+        }
     </section>
 }
 else
@@ -67,6 +100,14 @@ else
         }
     </section>
 
+    <section class="preview-section pagination-section" aria-label="Navigasi halaman">
+        <div class="pagination">
+            <button class="btn btn-ghost btn--sm" type="button" disabled="@(CurrentPage <= 1)" @onclick="PrevPage">Sebelumnya</button>
+            <span class="pagination__info">Halaman @CurrentPage dari @TotalPages</span>
+            <button class="btn btn-ghost btn--sm" type="button" disabled="@(CurrentPage >= TotalPages)" @onclick="NextPage">Berikutnya</button>
+        </div>
+    </section>
+
     <button class="fab" type="button" aria-label="Tambah Mahasiswa" @onclick="NavigateToAdd">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
             <path d="M12 5v14M5 12h14" />
@@ -82,13 +123,108 @@ else
                OnCancel="CancelDelete" />
 
 @code {
+    private string _searchTerm = string.Empty;
+    private string _sortBy = "nama";
+    private string _sortDir = "asc";
+    private int _currentPage = 1;
+    private int _pageSize = 10;
+    private int _totalCount;
+    private Timer? _debounceTimer;
+
+    private string SearchTerm
+    {
+        get => _searchTerm;
+        set
+        {
+            _searchTerm = value;
+            _currentPage = 1;
+            RestartDebounce();
+        }
+    }
+
+    private string SortBy
+    {
+        get => _sortBy;
+        set
+        {
+            if (_sortBy == value) return;
+            _sortBy = value;
+            _currentPage = 1;
+            _ = InvokeAsync(LoadAsync);
+        }
+    }
+
+    private string SortDir
+    {
+        get => _sortDir;
+        set
+        {
+            if (_sortDir == value) return;
+            _sortDir = value;
+            _currentPage = 1;
+            _ = InvokeAsync(LoadAsync);
+        }
+    }
+
+    private int CurrentPage => _currentPage;
+    private int TotalPages => _totalCount <= 0 ? 1 : (int)Math.Ceiling(_totalCount / (double)_pageSize);
+
     protected override string EntityName => "Mahasiswa";
 
     protected override string AddPath => "/mahasiswa/tambah";
 
-    protected override Task<ServiceResult<List<MahasiswaModel>>> LoadItemsAsync()
+    protected override async Task<ServiceResult<List<MahasiswaModel>>> LoadItemsAsync()
     {
-        return MahasiswaService.GetAllAsync();
+        var result = await MahasiswaService.GetFilteredAsync(
+            string.IsNullOrWhiteSpace(_searchTerm) ? null : _searchTerm,
+            _sortBy,
+            _sortDir,
+            _currentPage,
+            _pageSize);
+
+        if (result.Success)
+        {
+            _totalCount = result.TotalCount;
+        }
+        else if (result.TotalCount == 0)
+        {
+            _totalCount = 0;
+        }
+
+        return result;
+    }
+
+    private void RestartDebounce()
+    {
+        _debounceTimer?.Stop();
+        _debounceTimer?.Dispose();
+        _debounceTimer = new Timer(400);
+        _debounceTimer.Elapsed += OnDebounceElapsed;
+        _debounceTimer.AutoReset = false;
+        _debounceTimer.Start();
+    }
+
+    private void OnDebounceElapsed(object? sender, ElapsedEventArgs e)
+    {
+        _ = InvokeAsync(async () =>
+        {
+            await LoadAsync();
+            StateHasChanged();
+        });
+    }
+
+    private async Task PrevPage()
+    {
+        if (_currentPage <= 1) return;
+        _currentPage--;
+        await LoadAsync();
+    }
+
+    private async Task NextPage()
+    {
+        if (_currentPage >= TotalPages) return;
+        _currentPage++;
+        await LoadAsync();
     }
 
     protected override Task<ServiceResult> DeleteItemAsync(MahasiswaModel item)
@@ -104,5 +240,11 @@ else
     protected override string GetEditPath(MahasiswaModel item)
     {
         return $"/mahasiswa/edit/{item.MahasiswaId}";
+    }
+
+    public void Dispose()
+    {
+        _debounceTimer?.Stop();
+        _debounceTimer?.Dispose();
     }
 }

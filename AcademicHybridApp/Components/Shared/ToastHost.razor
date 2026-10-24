@@ -80,8 +80,29 @@
                 continue;
             }
 
-            _dismissTimers[id].Cancel();
-            _dismissTimers.Remove(id);
+            if (_dismissTimers.TryGetValue(id, out var timerToCancel))
+            {
+                _dismissTimers.Remove(id);
+
+                try
+                {
+                    if (!timerToCancel.IsCancellationRequested)
+                    {
+                        timerToCancel.Cancel();
+                    }
+                }
+                catch (ObjectDisposedException)
+                {
+                }
+
+                try
+                {
+                    timerToCancel.Dispose();
+                }
+                catch (ObjectDisposedException)
+                {
+                }
+            }
         }
     }
 
@@ -101,7 +122,18 @@
         }
         finally
         {
-            timer.Dispose();
+            if (_dismissTimers.TryGetValue(id, out var currentTimer) && ReferenceEquals(currentTimer, timer))
+            {
+                _dismissTimers.Remove(id);
+            }
+
+            try
+            {
+                timer.Dispose();
+            }
+            catch (ObjectDisposedException)
+            {
+            }
         }
     }
 
@@ -125,9 +157,28 @@
         _disposed = true;
         ToastService.OnChange -= HandleToastsChanged;
 
-        foreach (var timer in _dismissTimers.Values)
+        foreach (var kv in _dismissTimers.ToList())
         {
-            timer.Cancel();
+            _dismissTimers.Remove(kv.Key);
+
+            try
+            {
+                if (!kv.Value.IsCancellationRequested)
+                {
+                    kv.Value.Cancel();
+                }
+            }
+            catch (ObjectDisposedException)
+            {
+            }
+
+            try
+            {
+                kv.Value.Dispose();
+            }
+            catch (ObjectDisposedException)
+            {
+            }
         }
 
         _dismissTimers.Clear();
